@@ -28,6 +28,7 @@ void unite(int* array, int first, int second) {
     *(array + first) = second;
 }
 
+// This function scans number of nodes and edges.
 int scanNodesAndEdges(FILE* in, FILE* out, long long* numNodes, long long* numEdges) {
     if (1 != fscanf(in, "%lld", numNodes))
         return -1;
@@ -69,6 +70,11 @@ int fillEdges(FILE* in, FILE* out, edge* edges, long long* numNodes, long long* 
         return -1;
     }
     return 0;
+}
+
+void initSets(int* sets, int* numNodes) {
+    for (int i = 1; i < *numNodes + 1; ++i)
+        *(sets + i) = i;
 }
 
 
