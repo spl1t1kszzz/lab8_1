@@ -11,22 +11,17 @@ int main() {
         fclose(out);
         return 0;
     }
-    edge *edges = calloc(numEdges + 1, sizeof (edge));
+    edge *edges = calloc((numEdges + 1), sizeof (edge));
     if (-1 == fillEdges(in,out, edges, &numNodes, &numEdges)) {
         free(edges);
         fclose(in);
         fclose(out);
         return 0;
     }
-    int* sets = calloc(numNodes + 1, sizeof(int));
-    initSets(sets, &numNodes);
+    short int *sets = calloc(numNodes + 1, sizeof(short));
+    initSets(sets, numNodes);
     qsort(edges, numEdges + 1, sizeof (edge), compare);
-    for (int i = 1; i < numEdges + 1; ++i) {
-        if (findSet(sets, (edges + i)->first) != findSet(sets, (edges + i)->second)) {
-            fprintf(out, "%d %d\n", (edges + i)->first, (edges + i)->second);
-            unite(sets,(edges + i)->first, (edges + i)->second);
-        }
-    }
+    kruskal(out, sets, edges, numNodes, numEdges);
     free(sets);
     free(edges);
     fclose(in);

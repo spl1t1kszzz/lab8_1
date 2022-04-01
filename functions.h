@@ -1,9 +1,8 @@
-#ifndef LAB8_2_FUNCTIONS_H
-#define LAB8_2_FUNCTIONS_H
-#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h>
 
-#define maxLen (INT32_MAX)
 
 typedef struct {
     short int first;
@@ -11,23 +10,12 @@ typedef struct {
     int weight;
 } edge;
 
-// This function makes set.
-void makeSet(int* array, int value ) {
-    *(array + value) = value;
-}
-
-// This function returns the set to which the element belongs.
-int findSet(const int *array, int value) {
-    if (value == *(array + value))
-        return value;
-    else return findSet(array, *(array + value));
-}
-
 // This functions unites two sets.
-void unite(int* array, int first, int second) {
-    first = findSet(array, first);
-    second = findSet(array,second);
-    *(array + first) = second;
+void unite(short int *sets, int numNodes, int first, int second) {
+    for (int i = 1; i < numNodes + 1; i++) {
+        if (*(sets + i) == first)
+            *(sets + i) = second;
+    }
 }
 
 // This function scans number of nodes and edges.
@@ -54,11 +42,11 @@ int scanNodesAndEdges(FILE* in, FILE* out, int* numNodes, int* numEdges) {
 // This function fills edges.
 int fillEdges(FILE* in, FILE* out, edge* edges, int* numNodes, int* numEdges) {
     int lines = 0;
-    bool* tags = malloc(sizeof(bool) * *numNodes + 1);
+    bool* tags = calloc(*numNodes + 1, sizeof(bool));
     for (int i = 1; i < *numEdges + 1; ++i) {
         int first, second;
-        long long weight;
-        if (3 != fscanf(in, "%d %d %lld", &first, &second, &weight)) {
+        unsigned long long weight;
+        if (3 != fscanf(in, "%d %d %llu", &first, &second, &weight)) {
             if (lines < *numEdges)
                 fprintf(out, "%s", "bad number of lines");
             free(tags);
@@ -69,7 +57,7 @@ int fillEdges(FILE* in, FILE* out, edge* edges, int* numNodes, int* numEdges) {
             free(tags);
             return -1;
         }
-        if (weight >  (long long )maxLen) {
+        if (weight >  INT_MAX) {
             fprintf(out, "%s", "bad length");
             free(tags);
             return -1;
@@ -97,9 +85,9 @@ int fillEdges(FILE* in, FILE* out, edge* edges, int* numNodes, int* numEdges) {
 }
 
 // This function inits sets array.
-void initSets(int* sets, int* numNodes) {
-    for (int i = 1; i < *numNodes + 1; ++i)
-        makeSet(sets, i);
+void initSets(short * sets, int numNodes) {
+    for (int i = 1; i < numNodes + 1; ++i)
+        *(sets + i) = i;
 }
 
 // This function need to qsort
@@ -109,4 +97,13 @@ int compare (const void * a, const void * b) {
     return ( first->weight - second->weight );
 }
 
-#endif //LAB8_2_FUNCTIONS_H
+// This is the Kruskal's algorithm.
+void kruskal(FILE* out, short int* sets, edge* edges, int numNodes, int numEdges) {
+    for (int i = 1; i < numEdges + 1; ++i) {
+        if (*(sets + (edges + i)->first) != *(sets + (edges + i)->second)) {
+            fprintf(out, "%d %d\n", (edges + i)->first, (edges + i)->second);
+            unite(sets, numNodes, *(sets + (edges + i)->first), *(sets + (edges + i)->second));
+        }
+    }
+}
+
